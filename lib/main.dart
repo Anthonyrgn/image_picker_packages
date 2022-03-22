@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -34,7 +36,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+
+  File? imageFile;
+  ImagePicker picker = ImagePicker();
 
 
   @override
@@ -46,14 +50,39 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            (imageFile == null)
+              ? Text("Aucune image")
+              : Image.file(imageFile!, height: MediaQuery.of(context).size.height / 2,),
+
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                FloatingActionButton(onPressed: (){
+                  pickImage(ImageSource.gallery);
+                }, child: Icon(Icons.photo_album),),
+                FloatingActionButton(onPressed: (){
+                  pickImage(ImageSource.camera);
+                }, child: Icon(Icons.camera_enhance),),
+              ],
+            )
           ],
         ),
       ),
     );
+  }
+
+  Future pickImage(ImageSource) async {
+    PickedFile? chosenImage = await picker.getImage(source: ImageSource);
+    setState(() {
+      if (chosenImage == null){
+        print("Nous n'avons pas pu récupéré d'image");
+      } else {
+        imageFile = File(chosenImage.path);
+      }
+    });
   }
 }
